@@ -1,0 +1,273 @@
+/* 🎯 NOTION-LIKE MINIMAL DESIGN SYSTEM */
+:root {
+  /* ONLY 4 ALLOWED COLORS - CLEAN & SIMPLE */
+  --black: #000000;        /* Pure black for text */
+  --dark-gray: #222222;    /* Dark gray for secondary text */
+  --mint: #1DCD9F;         /* Mint for buttons/CTAs only */
+  --mint-dark: #169976;    /* Dark mint for hover states */
+  
+  /* NOTION-STYLE CLEAN BACKGROUNDS */
+  --background: #ffffff;    /* Clean white background everywhere */
+  --surface: #ffffff;       /* White cards and surfaces */
+  --surface-elevated: #ffffff; /* Keep it white, no gray tints */
+  
+  /* SIMPLE TEXT HIERARCHY - HIGH CONTRAST */
+  --text-primary: var(--black);      /* Pure black for main text */
+  --text-secondary: var(--dark-gray); /* Dark gray for secondary text */
+  --text-muted: var(--dark-gray);     /* Use dark gray, not light gray */
+  --text-on-mint: #ffffff;            /* White text on mint buttons */
+  
+  /* MINIMAL ACCENT USAGE - ONLY FOR BUTTONS */
+  --primary: var(--mint);             /* Mint for buttons/CTAs only */
+  --primary-hover: var(--mint-dark);  /* Dark mint for hover */
+  --primary-light: rgba(29, 205, 159, 0.05); /* Very subtle mint */
+  --primary-subtle: rgba(29, 205, 159, 0.02); /* Ultra-subtle mint */
+  
+  /* CLEAN BORDERS - VERY SUBTLE */
+  --border: #e5e5e5;                  /* Very light gray borders */
+  --border-strong: #d0d0d0;           /* Slightly stronger borders */
+  --border-focus: var(--mint);        /* Mint for focus states only */
+  
+  /* SIMPLE STATUS COLORS */
+  --success: var(--mint);
+  --success-light: var(--primary-light);
+  --warning: var(--dark-gray);
+  --error: var(--black);
+  --info: var(--mint);
+  
+  /* MINIMAL SHADOWS - NOTION STYLE */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --shadow-md: 0 2px 4px 0 rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 4px 8px 0 rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 8px 16px 0 rgba(0, 0, 0, 0.06);
+}
+
+/* Typography Scale */
+:root {
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --font-size-4xl: 2.25rem;
+  --font-size-5xl: 3rem;
+  
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-black: 900;
+}
+
+/* Spacing Scale */
+:root {
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.25rem;
+  --space-6: 1.5rem;
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+  --space-20: 5rem;
+}
+
+/* Border Radius */
+:root {
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  --radius-2xl: 24px;
+}
+
+/* NOTION-STYLE MINIMAL COMPONENTS */
+
+/* Primary Button - Simple mint button like Notion */
+.button-primary {
+  background-color: var(--primary);
+  color: var(--text-on-mint);
+  border: 1px solid var(--primary);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-base);
+  padding: 10px 20px;
+  transition: background-color 0.15s ease;
+  cursor: pointer;
+  box-shadow: none;
+  letter-spacing: 0;
+}
+
+.button-primary:hover {
+  background-color: var(--primary-hover);
+  border-color: var(--primary-hover);
+  box-shadow: none;
+  transform: none;
+}
+
+.button-primary:active {
+  transform: none;
+  box-shadow: none;
+}
+
+.button-primary:disabled {
+  background-color: var(--border-strong);
+  border-color: var(--border-strong);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  opacity: 1;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Secondary Button - Clean white button with subtle border */
+.button-secondary {
+  background-color: var(--surface);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-base);
+  padding: 10px 20px;
+  transition: border-color 0.15s ease;
+  cursor: pointer;
+  letter-spacing: 0;
+}
+
+.button-secondary:hover {
+  border-color: var(--border-strong);
+  color: var(--text-primary);
+  box-shadow: none;
+  transform: none;
+}
+
+.button-secondary:active {
+  transform: none;
+}
+
+/* Card Components - Notion-style clean cards */
+.card {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: none;
+  transition: border-color 0.15s ease;
+}
+
+.card:hover {
+  box-shadow: none;
+  border-color: var(--border-strong);
+  transform: none;
+}
+
+.card-elevated {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: border-color 0.15s ease;
+}
+
+.card-elevated:hover {
+  box-shadow: var(--shadow-sm);
+  transform: none;
+  border-color: var(--border-strong);
+}
+
+/* Surface Components - Notion-style clean surfaces */
+.surface {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  transition: border-color 0.15s ease;
+}
+
+.surface:hover {
+  border-color: var(--border-strong);
+}
+
+/* Input Components - Clean Notion-style forms */
+.input-primary {
+  background-color: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  color: var(--text-primary);
+  font-size: var(--font-size-base);
+  padding: 10px 14px;
+  transition: border-color 0.15s ease;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.input-primary:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: none;
+}
+
+.input-primary::placeholder {
+  color: var(--text-muted);
+}
+
+/* Status Components - Notion-style clean status indicators */
+.status-success {
+  background-color: var(--success-light);
+  color: var(--success);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+}
+
+.status-processing {
+  background-color: var(--primary-subtle);
+  color: var(--text-primary);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+}
+
+/* Loading Animation */
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Focus and Accessibility */
+.focus-ring {
+  outline: none;
+}
+
+.focus-ring:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Utility Classes */
+.text-gradient {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.border-gradient {
+  position: relative;
+  border: 1px solid transparent;
+  background: linear-gradient(var(--surface), var(--surface)) padding-box,
+              linear-gradient(135deg, var(--primary), var(--primary-hover)) border-box;
+}

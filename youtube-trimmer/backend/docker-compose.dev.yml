@@ -1,0 +1,119 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database for Development
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: reely_db
+      POSTGRES_USER: reely_user
+      POSTGRES_PASSWORD: reely_password
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reely_user -d reely_db"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # Redis for Development
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+      - ./scripts/redis.conf:/etc/redis/redis.conf
+    command: redis-server /etc/redis/redis.conf
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+
+  # Reely API Service for Development
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=postgresql://reely_user:reely_password@postgres:5432/reely_db
+      - REDIS_URL=redis://redis:6379/0
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - CORS_ORIGINS=http://localhost:3000,http://localhost:5173,http://127.0.0.1:5173
+    volumes:
+      - .:/app
+      - ./temp:/app/temp
+      - /app/__pycache__
+      - /app/.pytest_cache
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    restart: unless-stopped
+    stdin_open: true
+    tty: true
+
+  # Database migrations service
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    environment:
+      - DATABASE_URL=postgresql://reely_user:reely_password@postgres:5432/reely_db
+    volumes:
+      - .:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: ["python", "-c", "from database import init_db; init_db()"]
+    profiles: ["migrate"]
+
+  # Redis Commander for Redis management (optional)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    environment:
+      - REDIS_HOSTS=local:redis:6379
+    ports:
+      - "8081:8081"
+    depends_on:
+      - redis
+    profiles: ["tools"]
+
+  # pgAdmin for PostgreSQL management (optional)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@reely.dev
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    depends_on:
+      - postgres
+    profiles: ["tools"]
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
+  pgadmin_data:
+
+networks:
+  default:
+    name: reely_dev_network

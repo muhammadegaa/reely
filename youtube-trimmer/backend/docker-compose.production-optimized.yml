@@ -1,0 +1,178 @@
+# Production-optimized Docker Compose for handling long video processing
+version: '3.8'
+
+services:
+  # Nginx reverse proxy with optimized timeouts
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx-production.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - api
+    restart: unless-stopped
+    networks:
+      - reely-network
+
+  # Main FastAPI application
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      # Database
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      
+      # Processing optimizations
+      - ENABLE_ASYNC_PROCESSING=true
+      - ENABLE_FAST_PROCESSING=true
+      - MAX_CONCURRENT_JOBS=3
+      - SYNC_PROCESSING_TIMEOUT=300
+      - ASYNC_PROCESSING_TIMEOUT=3600
+      - DOWNLOAD_TIMEOUT=600
+      - TRANSCRIPTION_TIMEOUT=1800
+      - FFMPEG_TIMEOUT=1800
+      
+      # API Keys
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      
+      # Security
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - ENVIRONMENT=production
+      
+    volumes:
+      - /tmp/reely_processing:/tmp/reely_processing
+    depends_on:
+      - redis
+      - postgres
+    restart: unless-stopped
+    networks:
+      - reely-network
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+          cpus: '2.0'
+        reservations:
+          memory: 2G
+          cpus: '1.0'
+
+  # Celery worker for async processing
+  celery-worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A async_processor worker --loglevel=info --pool=prefork --concurrency=2 --queues=video_processing,hook_detection
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
+      - ENABLE_ASYNC_PROCESSING=true
+      - ENABLE_FAST_PROCESSING=true
+    volumes:
+      - /tmp/reely_processing:/tmp/reely_processing
+    depends_on:
+      - redis
+      - postgres
+    restart: unless-stopped
+    networks:
+      - reely-network
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+          cpus: '3.0'
+        reservations:
+          memory: 3G
+          cpus: '1.5'
+
+  # Celery beat for periodic tasks
+  celery-beat:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: celery -A async_processor beat --loglevel=info
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=${REDIS_URL}
+    depends_on:
+      - redis
+      - postgres
+    restart: unless-stopped
+    networks:
+      - reely-network
+
+  # Redis for caching and task queue
+  redis:
+    image: redis:7-alpine
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    networks:
+      - reely-network
+
+  # PostgreSQL database
+  postgres:
+    image: postgres:15-alpine
+    environment:
+      - POSTGRES_DB=${POSTGRES_DB:-reely_db}
+      - POSTGRES_USER=${POSTGRES_USER:-reely_user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-reely_password}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+    networks:
+      - reely-network
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+
+  # Monitoring with Prometheus (optional)
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml:ro
+    restart: unless-stopped
+    networks:
+      - reely-network
+    profiles:
+      - monitoring
+
+  # Grafana for visualization (optional)
+  grafana:
+    image: grafana/grafana:latest
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_PASSWORD:-admin}
+    volumes:
+      - grafana_data:/var/lib/grafana
+    restart: unless-stopped
+    networks:
+      - reely-network
+    profiles:
+      - monitoring
+
+volumes:
+  postgres_data:
+  redis_data:
+  grafana_data:
+
+networks:
+  reely-network:
+    driver: bridge

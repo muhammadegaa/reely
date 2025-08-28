@@ -1,0 +1,49 @@
+{
+  "name": "reely-backend",
+  "version": "2.0.0",
+  "description": "Reely - AI-Powered Video Trimmer Backend",
+  "private": true,
+  "scripts": {
+    "dev": "uvicorn main_vercel:app --reload --host 0.0.0.0 --port 8000",
+    "dev:docker": "docker-compose -f docker-compose.dev.yml up",
+    "dev:tools": "docker-compose -f docker-compose.dev.yml --profile tools up",
+    "migrate": "python -c \"from database import init_db; init_db()\"",
+    "migrate:docker": "docker-compose -f docker-compose.dev.yml run --rm migrate",
+    "test": "pytest tests/ -v",
+    "test:coverage": "pytest tests/ --cov=. --cov-report=html",
+    "lint": "flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics",
+    "format": "black . && isort .",
+    "type-check": "mypy .",
+    "setup:vercel": "./scripts/setup-vercel.sh",
+    "deploy": "vercel --prod",
+    "deploy:preview": "vercel",
+    "logs": "vercel logs",
+    "env:list": "vercel env ls",
+    "env:pull": "vercel env pull .env.vercel",
+    "clean": "find . -type d -name __pycache__ -delete && find . -name '*.pyc' -delete",
+    "health": "curl -f http://localhost:8000/health || echo 'Health check failed'",
+    "docs": "python -c \"import webbrowser; webbrowser.open('http://localhost:8000/docs')\"",
+    "migrate:to:vercel": "python scripts/migrate-to-vercel.py"
+  },
+  "keywords": [
+    "fastapi",
+    "video",
+    "ai",
+    "youtube",
+    "trimmer",
+    "saas",
+    "vercel"
+  ],
+  "author": "Reely Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "devDependencies": {
+    "@vercel/cli": "latest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-org/reely-backend"
+  }
+}

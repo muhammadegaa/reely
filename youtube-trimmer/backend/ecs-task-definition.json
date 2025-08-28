@@ -1,0 +1,89 @@
+{
+  "family": "reely-production-api",
+  "networkMode": "awsvpc",
+  "requiresCompatibilities": ["FARGATE"],
+  "cpu": "1024",
+  "memory": "2048",
+  "executionRoleArn": "arn:aws:iam::ACCOUNT_ID:role/reely-production-ecs-execution-role",
+  "taskRoleArn": "arn:aws:iam::ACCOUNT_ID:role/reely-production-ecs-task-role",
+  "containerDefinitions": [
+    {
+      "name": "reely-api",
+      "image": "ACCOUNT_ID.dkr.ecr.REGION.amazonaws.com/reely:latest",
+      "portMappings": [
+        {
+          "containerPort": 8000,
+          "protocol": "tcp"
+        }
+      ],
+      "essential": true,
+      "environment": [
+        {
+          "name": "ENVIRONMENT",
+          "value": "production"
+        },
+        {
+          "name": "DEBUG",
+          "value": "false"
+        }
+      ],
+      "secrets": [
+        {
+          "name": "DATABASE_URL",
+          "valueFrom": "arn:aws:ssm:REGION:ACCOUNT_ID:parameter/reely/production/database_url"
+        },
+        {
+          "name": "REDIS_URL",
+          "valueFrom": "arn:aws:ssm:REGION:ACCOUNT_ID:parameter/reely/production/redis_url"
+        },
+        {
+          "name": "JWT_SECRET_KEY",
+          "valueFrom": "arn:aws:ssm:REGION:ACCOUNT_ID:parameter/reely/production/jwt_secret_key"
+        },
+        {
+          "name": "OPENAI_API_KEY",
+          "valueFrom": "arn:aws:ssm:REGION:ACCOUNT_ID:parameter/reely/production/openai_api_key"
+        },
+        {
+          "name": "ANTHROPIC_API_KEY",
+          "valueFrom": "arn:aws:ssm:REGION:ACCOUNT_ID:parameter/reely/production/anthropic_api_key"
+        },
+        {
+          "name": "STRIPE_SECRET_KEY",
+          "valueFrom": "arn:aws:ssm:REGION:ACCOUNT_ID:parameter/reely/production/stripe_secret_key"
+        },
+        {
+          "name": "STRIPE_WEBHOOK_SECRET",
+          "valueFrom": "arn:aws:ssm:REGION:ACCOUNT_ID:parameter/reely/production/stripe_webhook_secret"
+        },
+        {
+          "name": "AWS_ACCESS_KEY_ID",
+          "valueFrom": "arn:aws:ssm:REGION:ACCOUNT_ID:parameter/reely/production/aws_access_key_id"
+        },
+        {
+          "name": "AWS_SECRET_ACCESS_KEY",
+          "valueFrom": "arn:aws:ssm:REGION:ACCOUNT_ID:parameter/reely/production/aws_secret_access_key"
+        },
+        {
+          "name": "S3_BUCKET_NAME",
+          "valueFrom": "arn:aws:ssm:REGION:ACCOUNT_ID:parameter/reely/production/s3_bucket_name"
+        }
+      ],
+      "logConfiguration": {
+        "logDriver": "awslogs",
+        "options": {
+          "awslogs-group": "/ecs/reely-production",
+          "awslogs-region": "REGION",
+          "awslogs-stream-prefix": "ecs"
+        }
+      },
+      "healthCheck": {
+        "command": ["CMD-SHELL", "curl -f http://localhost:8000/health || exit 1"],
+        "interval": 30,
+        "timeout": 5,
+        "retries": 3,
+        "startPeriod": 60
+      }
+    }
+  ]
+}

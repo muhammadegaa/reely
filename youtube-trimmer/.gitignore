@@ -1,0 +1,95 @@
+# Environment variables
+.env*
+!.env.example
+
+# API Keys & Credentials
+*.key
+*.pem
+*.crt
+*secret*
+*credential*
+*token*
+
+# IDE & Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+venv/
+.venv
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Media files
+*.mp4
+*.mp3
+*.wav
+*.avi
+*.mov
+*.mkv
+*.webm
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+temp/
+*.tmp
+*.temp
+media/
+uploads/
+downloads/
+
+# Backup files
+*.bak
+*.backup
+
+# Claude workspace
+.claude/
